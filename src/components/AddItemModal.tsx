@@ -136,30 +136,30 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="animate-in fade-in zoom-in flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl duration-200">
-        <header className="flex items-center justify-between border-b p-6">
-          <h2 className="text-xl font-bold">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm md:items-center md:p-4">
+      <div className="animate-in fade-in zoom-in flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl duration-200 md:max-h-[90vh] md:rounded-3xl">
+        <header className="flex items-center justify-between border-b p-4 md:p-6">
+          <h2 className="text-lg font-bold md:text-xl">
             {editingItem ? "옷 정보 수정" : "새로운 옷 등록"}
           </h2>
           <button
             onClick={onClose}
             className="rounded-full p-2 transition-colors hover:bg-gray-100"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 md:h-6 md:w-6" />
           </button>
         </header>
 
         <form
           onSubmit={handleSubmit}
-          className="flex-1 space-y-8 overflow-y-auto p-8"
+          className="flex-1 space-y-6 overflow-y-auto p-4 md:space-y-8 md:p-8"
         >
-          <div className="flex flex-col gap-8 md:flex-row">
+          <div className="flex flex-col gap-6 md:flex-row md:gap-8">
             {/* Photo Section */}
             <div className="flex-1">
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className={`flex aspect-[1/2] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed transition-all hover:border-blue-500 hover:bg-blue-50 ${
+                className={`flex aspect-[3/4] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed transition-all hover:border-blue-500 hover:bg-blue-50 md:aspect-[1/2] ${
                   photo ? "border-none" : "border-gray-300"
                 }`}
               >
@@ -191,8 +191,8 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
             </div>
 
             {/* Details Section */}
-            <div className="flex-[1.5] space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="flex-[1.5] space-y-4 md:space-y-6">
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <label className="mb-2 block text-xs font-bold uppercase text-gray-500">
                     종류
@@ -238,7 +238,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                 <label className="mb-2 block text-xs font-bold uppercase text-gray-500">
                   색상
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 md:gap-2">
                   {COLORS.map((c) => (
                     <button
                       key={c}
@@ -259,13 +259,13 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                 <label className="mb-2 block text-xs font-bold uppercase text-gray-500">
                   시즌
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 md:gap-2">
                   {SEASON_OPTIONS.map((s) => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => setSeason(s)}
-                      className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                      className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-all md:px-4 md:py-2 md:text-sm ${
                         season === s
                           ? "bg-blue-600 text-white shadow-md"
                           : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -277,7 +277,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 pt-2">
+              <div className="grid grid-cols-1 gap-3 pt-2 md:gap-4">
                 <div>
                   <label className="mb-2 block text-xs font-bold uppercase text-gray-500">
                     구매 정보
@@ -310,18 +310,18 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
           </div>
         </form>
 
-        <footer className="flex gap-4 border-t bg-gray-50 p-6">
+        <footer className="flex gap-3 border-t bg-gray-50 p-4 md:gap-4 md:p-6">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-2xl py-4 font-bold text-gray-600 transition-colors hover:bg-gray-100"
+            className="flex-1 rounded-2xl py-3 text-sm font-bold text-gray-600 transition-colors hover:bg-gray-100 md:py-4 md:text-base"
           >
             취소
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="flex-[2] rounded-2xl bg-blue-600 py-4 font-bold text-white shadow-xl transition-all hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-blue-400"
+            className="flex-[2] rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-xl transition-all hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-blue-400 md:py-4 md:text-base"
           >
             {isSubmitting
               ? editingItem

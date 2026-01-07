@@ -50,13 +50,13 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between rounded-xl border border-gray-200 border-transparent bg-gray-50 bg-white px-4 py-3 text-left text-sm font-medium transition-all hover:border-gray-200 focus:ring-2 focus:ring-blue-500"
+        className="flex w-full items-center justify-between rounded-xl border border-gray-200 border-transparent bg-gray-50 bg-white px-3 py-2 text-left text-xs font-medium transition-all hover:border-gray-200 focus:ring-2 focus:ring-blue-500 md:px-4 md:py-3 md:text-sm"
       >
-        <span className={!selectedOption ? "text-gray-400" : "text-gray-800"}>
+        <span className={`truncate ${!selectedOption ? "text-gray-400" : "text-gray-800"}`}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 flex-shrink-0 text-gray-400 transition-transform md:h-4 md:w-4 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -71,7 +71,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                   onChange(option.value);
                   setIsOpen(false);
                 }}
-                className={`w-full px-4 py-3 text-left text-sm transition-colors hover:bg-blue-50 ${
+                className={`w-full px-3 py-2.5 text-left text-xs transition-colors hover:bg-blue-50 md:px-4 md:py-3 md:text-sm ${
                   value === option.value
                     ? "bg-blue-50 font-bold text-blue-600"
                     : "text-gray-700"
@@ -81,7 +81,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
               </button>
             ))
           ) : (
-            <div className="px-4 py-3 text-sm text-gray-400">
+            <div className="px-3 py-2.5 text-xs text-gray-400 md:px-4 md:py-3 md:text-sm">
               옵션이 없습니다
             </div>
           )}

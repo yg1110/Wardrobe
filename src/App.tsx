@@ -221,14 +221,35 @@ const App = () => {
       {/* Mobile Sidebar Trigger (simplified for now) */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-2 border-b border-gray-200 bg-white px-4 md:px-6">
-          <h1 className="flex-shrink overflow-hidden text-ellipsis whitespace-nowrap text-lg font-bold text-gray-800 md:text-xl">
+      <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden pb-16 md:pb-0">
+        <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-2 border-b border-gray-200 bg-white px-3 md:h-16 md:px-6">
+          <h1 className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-base font-bold text-gray-800 md:text-xl">
             {activeTab === "closet" && "내 옷장"}
             {activeTab === "dashboard" && "분석 및 통계"}
             {activeTab === "ai-rec" && "AI 코디 추천"}
             {activeTab === "ai-tips" && "AI 정리 가이드"}
           </h1>
+
+          {activeTab === "closet" && (
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <div className="relative hidden sm:block">
+                <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="검색..."
+                  className="w-32 rounded-full border-none bg-gray-100 py-1.5 pl-8 pr-3 text-xs transition-all focus:ring-2 focus:ring-blue-500 md:w-64 md:text-sm"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex-shrink-0 rounded-full bg-blue-600 p-2 text-white shadow-lg transition-transform hover:scale-105 hover:bg-blue-700 active:scale-95"
+              >
+                <Plus className="h-5 w-5 md:h-6 md:w-6" />
+              </button>
+            </div>
+          )}
 
           <button
             onClick={handleLogout}
@@ -237,32 +258,11 @@ const App = () => {
           >
             <LogOut className="h-5 w-5" />
           </button>
-
-          {activeTab === "closet" && (
-            <div className="flex flex-shrink-0 items-center space-x-2 md:space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-6 -translate-y-1/2 text-gray-400 md:w-4" />
-                <input
-                  type="text"
-                  placeholder="검색..."
-                  className="w-28 rounded-full border-none bg-gray-100 py-2 pl-9 pr-3 text-xs transition-all focus:ring-2 focus:ring-blue-500 sm:w-40 md:w-64 md:text-sm"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="flex-shrink-0 rounded-full bg-blue-600 p-1.5 text-white shadow-lg transition-transform hover:scale-105 hover:bg-blue-700 active:scale-95 md:p-2"
-              >
-                <Plus className="h-6 w-6" />
-              </button>
-            </div>
-          )}
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+        <div className="flex-1 overflow-y-auto p-3 pb-20 md:p-8 md:pb-8">
           {activeTab === "closet" && (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {itemsLoading ? (
                 <div className="flex h-64 flex-col items-center justify-center space-y-2 text-gray-400">
                   <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
@@ -270,18 +270,30 @@ const App = () => {
                 </div>
               ) : (
                 <>
+                  {/* Mobile Search Bar */}
+                  <div className="relative sm:hidden">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="검색..."
+                      className="w-full rounded-full border-none bg-gray-100 py-2 pl-10 pr-4 text-sm transition-all focus:ring-2 focus:ring-blue-500"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+
                   <div className="flex flex-row gap-2 pb-1">
                     <CustomSelect
                       options={categoryOptions}
                       value={filterCategory}
                       onChange={(val) => setFilterCategory(val as any)}
-                      className="min-w-[120px] flex-1"
+                      className="min-w-0 flex-1"
                     />
                     <CustomSelect
                       options={seasonOptions}
                       value={filterSeason}
                       onChange={(val) => setFilterSeason(val as any)}
-                      className="min-w-[120px] flex-1"
+                      className="min-w-0 flex-1"
                     />
                   </div>
 

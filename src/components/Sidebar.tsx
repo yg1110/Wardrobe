@@ -15,44 +15,54 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <aside className="flex w-20 shrink-0 flex-col border-r border-gray-200 bg-white md:w-64">
-      <div className="flex h-16 items-center justify-center border-b border-gray-100 px-6 md:justify-start">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-          W
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden w-20 shrink-0 flex-col border-r border-gray-200 bg-white md:flex md:w-64">
+        <div className="flex h-16 items-center justify-center border-b border-gray-100 px-6 md:justify-start">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
+            W
+          </div>
+          <span className="ml-3 hidden text-lg font-bold md:block">wardrobe</span>
         </div>
-        <span className="ml-3 hidden text-lg font-bold md:block">wardrobe</span>
-      </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-6">
+        <nav className="flex-1 space-y-1 px-3 py-6">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`flex w-full items-center rounded-xl p-3 transition-all ${
+                activeTab === item.id
+                  ? "bg-blue-50 text-blue-600 shadow-sm"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+              }`}
+            >
+              <item.icon className="h-6 w-6 shrink-0" />
+              <span className="ml-3 hidden font-medium md:block">
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-gray-200 bg-white px-2 py-2 shadow-lg md:hidden">
         {navItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`flex w-full items-center rounded-xl p-3 transition-all ${
+            className={`flex flex-col items-center justify-center rounded-xl px-4 py-2 transition-all ${
               activeTab === item.id
-                ? "bg-blue-50 text-blue-600 shadow-sm"
-                : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                ? "text-blue-600"
+                : "text-gray-500"
             }`}
           >
-            <item.icon className="h-6 w-6 shrink-0" />
-            <span className="ml-3 hidden font-medium md:block">
-              {item.label}
-            </span>
+            <item.icon className={`h-5 w-5 ${activeTab === item.id ? "scale-110" : ""}`} />
+            <span className="mt-1 text-[10px] font-medium">{item.label}</span>
           </button>
         ))}
       </nav>
-
-      {/* <div className="hidden border-t border-gray-100 p-4 md:block">
-        <div className="rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-4 text-white shadow-lg">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider opacity-80">
-            PRO AI Feature
-          </p>
-          <p className="text-sm font-bold leading-snug">
-            오늘 날씨에 맞는 옷을 추천받아보세요!
-          </p>
-        </div>
-      </div> */}
-    </aside>
+    </>
   );
 };
 

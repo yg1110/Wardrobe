@@ -47,42 +47,42 @@ const Dashboard: React.FC<DashboardProps> = ({ items }) => {
   ];
 
   return (
-    <div className="space-y-8 pb-12">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-          <p className="text-gray-500 text-sm font-medium mb-1">총 의류 개수</p>
-          <p className="text-4xl font-black text-blue-600">{items.length}</p>
+    <div className="space-y-4 pb-12 md:space-y-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center md:rounded-3xl md:p-6">
+          <p className="text-gray-500 text-xs font-medium mb-1 md:text-sm">총 의류 개수</p>
+          <p className="text-3xl font-black text-blue-600 md:text-4xl">{items.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-          <p className="text-gray-500 text-sm font-medium mb-1">
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center md:rounded-3xl md:p-6">
+          <p className="text-gray-500 text-xs font-medium mb-1 md:text-sm">
             이번 달 입은 횟수
           </p>
-          <p className="text-4xl font-black text-green-600">
+          <p className="text-3xl font-black text-green-600 md:text-4xl">
             {items.reduce((sum, item) => sum + item.wornCount, 0)}
           </p>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-          <p className="text-gray-500 text-sm font-medium mb-1">
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center sm:col-span-2 md:col-span-1 md:rounded-3xl md:p-6">
+          <p className="text-gray-500 text-xs font-medium mb-1 md:text-sm">
             가장 많이 입은 옷
           </p>
-          <p className="text-lg font-bold text-gray-800">
+          <p className="text-base font-bold text-gray-800 md:text-lg">
             {frequencyData[0]?.name || "데이터 없음"}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold mb-6">의류 카테고리 비중</h3>
-          <div className="h-64">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm md:rounded-3xl md:p-8">
+          <h3 className="text-base font-bold mb-4 md:text-lg md:mb-6">의류 카테고리 비중</h3>
+          <div className="h-48 md:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={40}
+                  outerRadius={60}
                   paddingAngle={5}
                   dataKey="value"
                   label
@@ -100,14 +100,23 @@ const Dashboard: React.FC<DashboardProps> = ({ items }) => {
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold mb-6">가장 자주 입은 옷 Top 5</h3>
-          <div className="h-64">
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm md:rounded-3xl md:p-8">
+          <h3 className="text-base font-bold mb-4 md:text-lg md:mb-6">가장 자주 입은 옷 Top 5</h3>
+          <div className="h-48 md:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={frequencyData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false}
+                  tick={{ fontSize: 10 }}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false}
+                  tick={{ fontSize: 10 }}
+                />
                 <Tooltip cursor={{ fill: "#f3f4f6" }} />
                 <Bar dataKey="count" radius={[10, 10, 0, 0]}>
                   {frequencyData.map((entry, index) => (
