@@ -99,12 +99,38 @@ export async function addClosetItem(
 export async function updateClosetItem(
   id: string,
   updates: {
+    photo?: string;
+    category?: string;
+    sub_category?: string | null;
+    season?: string;
+    color?: string;
+    purchase_link?: string | null;
+    price?: number | null;
+    purchase_date?: string | null;
     worn_count?: number;
     last_worn_date?: string | null;
   },
 ): Promise<ClosetItem> {
+  const updateData: any = {};
+
+  if (updates.photo !== undefined) updateData.photo = updates.photo;
+  if (updates.category !== undefined) updateData.category = updates.category;
+  if (updates.sub_category !== undefined)
+    updateData.sub_category = updates.sub_category;
+  if (updates.season !== undefined) updateData.season = updates.season;
+  if (updates.color !== undefined) updateData.color = updates.color;
+  if (updates.purchase_link !== undefined)
+    updateData.purchase_link = updates.purchase_link;
+  if (updates.price !== undefined) updateData.price = updates.price;
+  if (updates.purchase_date !== undefined)
+    updateData.purchase_date = updates.purchase_date;
+  if (updates.worn_count !== undefined)
+    updateData.worn_count = updates.worn_count;
+  if (updates.last_worn_date !== undefined)
+    updateData.last_worn_date = updates.last_worn_date;
+
   const { data, error } = await (supabase.from("closet_items") as any)
-    .update(updates)
+    .update(updateData)
     .eq("id", id)
     .select()
     .single();

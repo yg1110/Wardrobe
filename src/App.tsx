@@ -5,8 +5,8 @@ import Sidebar from "./components/Sidebar";
 import ClosetGrid from "./components/ClosetGrid";
 import AddItemModal from "./components/AddItemModal";
 import Dashboard from "./components/Dashboard";
-import AIRecommendations from "./components/AIRecommendations";
-import ClosetAnalysis from "./components/ClosetAnalysis";
+// import AIRecommendations from "./components/AIRecommendations";
+// import ClosetAnalysis from "./components/ClosetAnalysis";
 import Auth from "./components/Auth";
 import { Search, Plus, Shirt, LogOut } from "lucide-react";
 import CustomSelect from "./components/CustomSelect";
@@ -26,6 +26,7 @@ const App = () => {
     "closet" | "dashboard" | "ai-rec" | "ai-tips"
   >("closet");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<ClosetItem | null>(null);
   const [filterCategory, setFilterCategory] = useState<Category | "All">("All");
   const [filterSeason, setFilterSeason] = useState<Season | "All">("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,10 +97,48 @@ const App = () => {
       const savedItem = await addClosetItem(newItem);
       setItems((prev) => [savedItem, ...prev]);
       setIsModalOpen(false);
+      setEditingItem(null);
     } catch (error) {
       console.error("옷장 아이템을 추가하는 중 오류:", error);
       alert("아이템을 추가하는 중 오류가 발생했습니다.");
     }
+  };
+
+  const handleUpdateItem = async (id: string, updates: Partial<ClosetItem>) => {
+    try {
+      const updateData: any = {};
+      if (updates.photo) updateData.photo = updates.photo;
+      if (updates.category) updateData.category = updates.category;
+      if (updates.subCategory !== undefined)
+        updateData.sub_category = updates.subCategory || null;
+      if (updates.season) updateData.season = updates.season;
+      if (updates.color) updateData.color = updates.color;
+      if (updates.purchaseLink !== undefined)
+        updateData.purchase_link = updates.purchaseLink || null;
+      if (updates.price !== undefined) updateData.price = updates.price || null;
+      if (updates.purchaseDate !== undefined)
+        updateData.purchase_date = updates.purchaseDate || null;
+
+      const updatedItem = await updateClosetItem(id, updateData);
+      setItems((prev) =>
+        prev.map((item) => (item.id === id ? updatedItem : item)),
+      );
+      setIsModalOpen(false);
+      setEditingItem(null);
+    } catch (error) {
+      console.error("옷장 아이템을 수정하는 중 오류:", error);
+      alert("아이템을 수정하는 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleEditItem = (item: ClosetItem) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingItem(null);
   };
 
   const handleDeleteItem = async (id: string) => {
@@ -251,6 +290,7 @@ const App = () => {
                       items={filteredItems}
                       onDelete={handleDeleteItem}
                       onWear={handleWornToday}
+                      onEdit={handleEditItem}
                     />
                   ) : (
                     <div className="flex h-64 flex-col items-center justify-center space-y-2 text-gray-400">
@@ -266,16 +306,18 @@ const App = () => {
           )}
 
           {activeTab === "dashboard" && <Dashboard items={items} />}
-          {activeTab === "ai-rec" && <AIRecommendations items={items} />}
-          {activeTab === "ai-tips" && <ClosetAnalysis />}
+          {/* {activeTab === "ai-rec" && <AIRecommendations items={items} />} */}
+          {/* {activeTab === "ai-tips" && <ClosetAnalysis />} */}
         </div>
       </main>
 
       {isModalOpen && (
         <AddItemModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={handleCloseModal}
           onAdd={handleAddItem}
+          editingItem={editingItem}
+          onUpdate={handleUpdateItem}
         />
       )}
     </div>
