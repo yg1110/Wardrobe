@@ -9,47 +9,48 @@ interface ClosetGridProps {
 }
 
 const ClosetGrid: React.FC<ClosetGridProps> = ({ items, onDelete, onWear }) => {
+  console.log("items", items);
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {items.map((item) => (
         <div
           key={item.id}
-          className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 relative"
+          className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:-translate-y-1 hover:shadow-xl"
         >
-          <div className="aspect-[3/4] overflow-hidden bg-gray-200 relative">
+          <div className="relative aspect-[3/4] overflow-hidden bg-gray-200">
             <img
               src={item.photo}
               alt={item.category}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-3">
+            <div className="absolute inset-0 flex items-center justify-center space-x-3 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
               <button
                 onClick={() => onWear(item.id)}
-                className="bg-green-500 p-2 rounded-full text-white hover:scale-110 transition-transform shadow-lg"
+                className="rounded-full bg-green-500 p-2 text-white shadow-lg transition-transform hover:scale-110"
                 title="오늘 입음 체크"
               >
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="h-5 w-5" />
               </button>
               <button
                 onClick={() => onDelete(item.id)}
-                className="bg-red-500 p-2 rounded-full text-white hover:scale-110 transition-transform shadow-lg"
+                className="rounded-full bg-red-500 p-2 text-white shadow-lg transition-transform hover:scale-110"
                 title="삭제"
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="h-5 w-5" />
               </button>
             </div>
           </div>
           <div className="p-4">
-            <div className="flex justify-between items-start mb-1">
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+            <div className="mb-1 flex items-start justify-between">
+              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-600">
                 {item.category}
               </span>
               <div
-                className="w-4 h-4 rounded-full border border-gray-200"
+                className="h-4 w-4 rounded-full border border-gray-200"
                 style={{ backgroundColor: item.color }}
               />
             </div>
-            <h3 className="text-sm font-semibold text-gray-800 truncate">
+            <h3 className="truncate text-sm font-semibold text-gray-800">
               {item.subCategory || item.category}
             </h3>
             <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
@@ -66,9 +67,9 @@ const ClosetGrid: React.FC<ClosetGridProps> = ({ items, onDelete, onWear }) => {
                 href={item.purchaseLink}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 block text-center py-1.5 border border-gray-100 rounded-lg text-[11px] text-gray-400 hover:text-blue-600 hover:border-blue-100 transition-colors"
+                className="mt-3 block rounded-lg border border-gray-100 py-1.5 text-center text-[11px] text-gray-400 transition-colors hover:border-blue-100 hover:text-blue-600"
               >
-                <ExternalLink className="inline-block w-3 h-3 mr-1" />
+                <ExternalLink className="mr-1 inline-block h-3 w-3" />
                 구매처 바로가기
               </a>
             )}

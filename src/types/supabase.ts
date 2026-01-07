@@ -15,6 +15,7 @@ export interface Database {
       closet_items: {
         Row: {
           id: string;
+          user_id: string;
           photo: string;
           season: string;
           color: string;
@@ -30,6 +31,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          user_id: string;
           photo: string;
           season: string;
           color: string;
@@ -45,6 +47,7 @@ export interface Database {
         };
         Update: {
           id?: string;
+          user_id?: string;
           photo?: string;
           season?: string;
           color?: string;

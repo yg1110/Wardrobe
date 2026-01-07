@@ -7,8 +7,10 @@ import AddItemModal from "./components/AddItemModal";
 import Dashboard from "./components/Dashboard";
 import AIRecommendations from "./components/AIRecommendations";
 import ClosetAnalysis from "./components/ClosetAnalysis";
-import { Search, Plus, Shirt } from "lucide-react";
+import Auth from "./components/Auth";
+import { Search, Plus, Shirt, LogOut } from "lucide-react";
 import CustomSelect from "./components/CustomSelect";
+import { supabase } from "./lib/supabase";
 import {
   fetchClosetItems,
   addClosetItem,
@@ -17,6 +19,8 @@ import {
 } from "./services/closetService";
 
 const App = () => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<ClosetItem[]>([]);
   const [activeTab, setActiveTab] = useState<
     "closet" | "dashboard" | "ai-rec" | "ai-tips"
@@ -25,25 +29,67 @@ const App = () => {
   const [filterCategory, setFilterCategory] = useState<Category | "All">("All");
   const [filterSeason, setFilterSeason] = useState<Season | "All">("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [itemsLoading, setItemsLoading] = useState(false);
 
-  // Supabase에서 데이터 로드
+  // 인증 상태 확인
   useEffect(() => {
-    const loadItems = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchClosetItems();
-        setItems(data);
-      } catch (error) {
-        console.error("옷장 아이템을 불러오는 중 오류:", error);
-        alert("데이터를 불러오는 중 오류가 발생했습니다.");
-      } finally {
-        setLoading(false);
-      }
+    const checkUser = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
     };
 
-    loadItems();
+    checkUser();
+
+    // 인증 상태 변경 감지
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        loadItems();
+      } else {
+        setItems([]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Supabase에서 데이터 로드
+  const loadItems = async () => {
+    try {
+      setItemsLoading(true);
+      const data = await fetchClosetItems();
+      setItems(data);
+    } catch (error) {
+      console.error("옷장 아이템을 불러오는 중 오류:", error);
+      alert("데이터를 불러오는 중 오류가 발생했습니다.");
+    } finally {
+      setItemsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      loadItems();
+    }
+  }, [user]);
+
+  const handleAuthSuccess = () => {
+    // 인증 성공 후 사용자 정보 다시 가져오기
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setItems([]);
+  };
 
   const handleAddItem = async (newItem: ClosetItem) => {
     try {
@@ -116,6 +162,21 @@ const App = () => {
     ...SEASON_OPTIONS.map((s) => ({ label: s, value: s })),
   ];
 
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center space-y-2">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+          <p className="text-sm text-gray-400">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Auth onAuthSuccess={handleAuthSuccess} />;
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 font-sans">
       {/* Mobile Sidebar Trigger (simplified for now) */}
@@ -129,6 +190,14 @@ const App = () => {
             {activeTab === "ai-rec" && "AI 코디 추천"}
             {activeTab === "ai-tips" && "AI 정리 가이드"}
           </h1>
+
+          <button
+            onClick={handleLogout}
+            className="flex-shrink-0 rounded-full p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800"
+            title="로그아웃"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
 
           {activeTab === "closet" && (
             <div className="flex flex-shrink-0 items-center space-x-2 md:space-x-4">
@@ -155,7 +224,7 @@ const App = () => {
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === "closet" && (
             <div className="space-y-6">
-              {loading ? (
+              {itemsLoading ? (
                 <div className="flex h-64 flex-col items-center justify-center space-y-2 text-gray-400">
                   <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
                   <p className="text-sm">데이터를 불러오는 중...</p>

@@ -1,9 +1,7 @@
--- Supabase 데이터베이스 스키마
--- Supabase 대시보드의 SQL Editor에서 실행하세요.
-
 -- closet_items 테이블 생성
 CREATE TABLE IF NOT EXISTS public.closet_items (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   photo TEXT NOT NULL,
   category TEXT NOT NULL,
   sub_category TEXT,
@@ -34,25 +32,28 @@ CREATE TRIGGER update_closet_items_updated_at
   EXECUTE FUNCTION update_updated_at_column();
 
 -- RLS (Row Level Security) 정책 설정
--- 모든 사용자가 읽기/쓰기 가능하도록 설정 (필요에 따라 수정하세요)
 ALTER TABLE public.closet_items ENABLE ROW LEVEL SECURITY;
 
--- 모든 사용자가 읽기 가능
-CREATE POLICY "Allow public read access" ON public.closet_items
-  FOR SELECT USING (true);
+-- 업로드 정책: 파일 경로가 user_id/filename 형식이어야 함
+CREATE POLICY "Users can upload own images"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'closet-images' 
+  AND auth.uid()::text = (string_to_array(name, '/'))[1]
+);
 
--- 모든 사용자가 삽입 가능
-CREATE POLICY "Allow public insert access" ON public.closet_items
-  FOR INSERT WITH CHECK (true);
+-- 읽기 정책: 자신의 파일만 읽기 가능
+CREATE POLICY "Users can view own images"
+ON storage.objects FOR SELECT
+USING (
+  bucket_id = 'closet-images' 
+  AND auth.uid()::text = (string_to_array(name, '/'))[1]
+);
 
--- 모든 사용자가 업데이트 가능
-CREATE POLICY "Allow public update access" ON public.closet_items
-  FOR UPDATE USING (true);
-
--- 모든 사용자가 삭제 가능
-CREATE POLICY "Allow public delete access" ON public.closet_items
-  FOR DELETE USING (true);
-
--- Storage 버킷 생성 (Supabase 대시보드의 Storage에서도 생성 가능)
--- Storage > Create bucket > bucket name: "closet-images", public: true
-
+-- 삭제 정책: 자신의 파일만 삭제 가능
+CREATE POLICY "Users can delete own images"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'closet-images' 
+  AND auth.uid()::text = (string_to_array(name, '/'))[1]
+);
