@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Mail, Lock, User, LogIn, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 
 interface AuthProps {
   onAuthSuccess: () => void;
@@ -68,7 +69,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
 
         // 이메일 확인이 필요한 경우
         if (data.user && !data.user.email_confirmed_at) {
-          alert(
+          toast.success(
             "회원가입이 완료되었습니다! 이메일을 확인하여 계정을 활성화해주세요.",
           );
           setIsLogin(true);

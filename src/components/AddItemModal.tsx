@@ -4,6 +4,7 @@ import { CATEGORIES, CATEGORY_MAP, SEASON_OPTIONS, COLORS } from "../constants";
 import CustomSelect from "./CustomSelect";
 import { X, Camera } from "lucide-react";
 import { uploadImage } from "../services/closetService";
+import { toast } from "sonner";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -92,7 +93,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 
     // 수정 모드가 아닐 때만 새 사진 필수
     if (!editingItem && (!photo || !photoFile)) {
-      alert("사진을 등록해주세요.");
+      toast.error("사진을 등록해주세요.");
       return;
     }
 
@@ -141,7 +142,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
         editingItem ? "아이템 수정 중 오류:" : "아이템 추가 중 오류:",
         error,
       );
-      alert(
+      toast.error(
         editingItem
           ? "아이템을 수정하는 중 오류가 발생했습니다."
           : "아이템을 추가하는 중 오류가 발생했습니다.",

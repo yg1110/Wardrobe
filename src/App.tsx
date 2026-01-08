@@ -18,6 +18,7 @@ import {
 import LaundryTracker from "./components/LaundryTracker";
 import OutfitManager from "./components/OutfitManager";
 import WishlistManager from "./components/WishlistManager";
+import { toast, Toaster } from "sonner";
 
 const App = () => {
   const [user, setUser] = useState<any>(null);
@@ -101,7 +102,7 @@ const App = () => {
       setEditingItem(null);
     } catch (error) {
       console.error("옷장 아이템을 추가하는 중 오류:", error);
-      alert("아이템을 추가하는 중 오류가 발생했습니다.");
+      toast.error("아이템을 추가하는 중 오류가 발생했습니다.");
     }
   };
 
@@ -129,7 +130,7 @@ const App = () => {
       setEditingItem(null);
     } catch (error) {
       console.error("옷장 아이템을 수정하는 중 오류:", error);
-      alert("아이템을 수정하는 중 오류가 발생했습니다.");
+      toast.error("아이템을 수정하는 중 오류가 발생했습니다.");
     }
   };
 
@@ -149,7 +150,7 @@ const App = () => {
       setItems((prev) => prev.filter((i) => i.id !== id));
     } catch (error) {
       console.error("옷장 아이템을 삭제하는 중 오류:", error);
-      alert("아이템을 삭제하는 중 오류가 발생했습니다.");
+      toast.error("아이템을 삭제하는 중 오류가 발생했습니다.");
     }
   };
 
@@ -176,7 +177,7 @@ const App = () => {
       );
     } catch (error) {
       console.error("입은 횟수를 업데이트하는 중 오류:", error);
-      alert("입은 횟수를 업데이트하는 중 오류가 발생했습니다.");
+      toast.error("입은 횟수를 업데이트하는 중 오류가 발생했습니다.");
     }
   };
 
@@ -200,7 +201,7 @@ const App = () => {
       );
     } catch (error) {
       console.error("세탁 상태를 업데이트하는 중 오류:", error);
-      alert("세탁 상태를 업데이트하는 중 오류가 발생했습니다.");
+      toast.error("세탁 상태를 업데이트하는 중 오류가 발생했습니다.");
     }
   };
 
@@ -268,6 +269,7 @@ const App = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 font-sans">
+      <Toaster />
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden pb-16 md:pb-0">
