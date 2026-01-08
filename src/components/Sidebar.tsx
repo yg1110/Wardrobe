@@ -1,5 +1,5 @@
 import React from "react";
-import { Shirt, LayoutDashboard, Wand2, Sparkles } from "lucide-react";
+import { Shirt, LayoutDashboard } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -10,8 +10,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const navItems = [
     { id: "closet", label: "내 옷장", icon: Shirt },
     { id: "dashboard", label: "통계 분석", icon: LayoutDashboard },
-    // { id: "ai-rec", label: "추천 조합", icon: Wand2 },
-    // { id: "ai-tips", label: "정리 팁", icon: Sparkles },
   ];
 
   return (
@@ -22,7 +20,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
             W
           </div>
-          <span className="ml-3 hidden text-lg font-bold md:block">wardrobe</span>
+          <span className="ml-3 hidden text-lg font-bold md:block">
+            wardrobe
+          </span>
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-6">
@@ -52,12 +52,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             className={`flex flex-col items-center justify-center rounded-xl px-4 py-2 transition-all ${
-              activeTab === item.id
-                ? "text-blue-600"
-                : "text-gray-500"
+              activeTab === item.id ? "text-blue-600" : "text-gray-500"
             }`}
           >
-            <item.icon className={`h-5 w-5 ${activeTab === item.id ? "scale-110" : ""}`} />
+            <item.icon
+              className={`h-5 w-5 ${activeTab === item.id ? "scale-110" : ""}`}
+            />
             <span className="mt-1 text-[10px] font-medium">{item.label}</span>
           </button>
         ))}

@@ -29,19 +29,22 @@ const ClosetGrid: React.FC<ClosetGridProps> = ({
               alt={item.category}
               className="h-full w-full object-cover"
             />
-            <div
-              className="absolute inset-0 flex items-center justify-center space-x-2 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 md:space-x-3"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="absolute inset-0 flex items-center justify-center space-x-2 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 md:space-x-3">
               <button
-                onClick={() => onWear(item.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onWear(item.id);
+                }}
                 className="rounded-full bg-green-500 p-1.5 text-white shadow-lg transition-transform hover:scale-110 md:p-2"
                 title="오늘 입음 체크"
               >
                 <CheckCircle className="h-4 w-4 md:h-5 md:w-5" />
               </button>
               <button
-                onClick={() => onDelete(item.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(item.id);
+                }}
                 className="rounded-full bg-red-500 p-1.5 text-white shadow-lg transition-transform hover:scale-110 md:p-2"
                 title="삭제"
               >

@@ -5,8 +5,6 @@ import Sidebar from "./components/Sidebar";
 import ClosetGrid from "./components/ClosetGrid";
 import AddItemModal from "./components/AddItemModal";
 import Dashboard from "./components/Dashboard";
-// import AIRecommendations from "./components/AIRecommendations";
-// import ClosetAnalysis from "./components/ClosetAnalysis";
 import Auth from "./components/Auth";
 import { Search, Plus, Shirt, LogOut } from "lucide-react";
 import CustomSelect from "./components/CustomSelect";
@@ -67,7 +65,6 @@ const App = () => {
       setItems(data);
     } catch (error) {
       console.error("옷장 아이템을 불러오는 중 오류:", error);
-      alert("데이터를 불러오는 중 오류가 발생했습니다.");
     } finally {
       setItemsLoading(false);
     }
@@ -218,7 +215,6 @@ const App = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 font-sans">
-      {/* Mobile Sidebar Trigger (simplified for now) */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden pb-16 md:pb-0">
@@ -226,8 +222,6 @@ const App = () => {
           <h1 className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-base font-bold text-gray-800 md:text-xl">
             {activeTab === "closet" && "내 옷장"}
             {activeTab === "dashboard" && "분석 및 통계"}
-            {activeTab === "ai-rec" && "AI 코디 추천"}
-            {activeTab === "ai-tips" && "AI 정리 가이드"}
           </h1>
 
           {activeTab === "closet" && (
@@ -270,7 +264,6 @@ const App = () => {
                 </div>
               ) : (
                 <>
-                  {/* Mobile Search Bar */}
                   <div className="relative sm:hidden">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                     <input
@@ -318,8 +311,6 @@ const App = () => {
           )}
 
           {activeTab === "dashboard" && <Dashboard items={items} />}
-          {/* {activeTab === "ai-rec" && <AIRecommendations items={items} />} */}
-          {/* {activeTab === "ai-tips" && <ClosetAnalysis />} */}
         </div>
       </main>
 

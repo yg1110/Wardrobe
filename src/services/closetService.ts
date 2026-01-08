@@ -201,6 +201,7 @@ export async function deleteImage(imageUrl: string): Promise<void> {
     console.warn("이미지 URL에서 경로를 추출할 수 없습니다:", imageUrl);
     return;
   }
+
   // 버킷 이름 다음부터가 파일 경로 (user_id/filename 형식)
   const filePath = urlParts.slice(bucketIndex + 1).join("/");
 
@@ -210,7 +211,6 @@ export async function deleteImage(imageUrl: string): Promise<void> {
 
   if (error) {
     console.error("이미지 삭제 중 오류:", error);
-    // 이미지 삭제 실패는 치명적이지 않으므로 에러를 던지지 않음
     console.warn("이미지 삭제에 실패했지만 계속 진행합니다:", error);
   }
 }
