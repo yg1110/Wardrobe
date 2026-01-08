@@ -227,7 +227,7 @@ const Dashboard: React.FC<DashboardProps> = ({ items, outfits, wishlist }) => {
                   cy="50%"
                   innerRadius={70}
                   outerRadius={100}
-                  paddingAngle={8}
+                  paddingAngle={5}
                   dataKey="value"
                 >
                   {laundryData.map((entry, index) => (

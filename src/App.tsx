@@ -18,6 +18,7 @@ import {
 import LaundryTracker from "./components/LaundryTracker";
 import OutfitManager from "./components/OutfitManager";
 import WishlistManager from "./components/WishlistManager";
+import ConfirmDialog from "./components/ConfirmDialog";
 import { toast, Toaster } from "sonner";
 
 const App = () => {
@@ -35,6 +36,8 @@ const App = () => {
   const [filterSeason, setFilterSeason] = useState<Season | "All">("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [itemsLoading, setItemsLoading] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   // 인증 상태 확인
   useEffect(() => {
@@ -144,13 +147,24 @@ const App = () => {
     setEditingItem(null);
   };
 
-  const handleDeleteItem = async (id: string) => {
+  const handleDeleteItem = (id: string) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+
     try {
-      await deleteClosetItem(id);
-      setItems((prev) => prev.filter((i) => i.id !== id));
+      await deleteClosetItem(itemToDelete);
+      setItems((prev) => prev.filter((i) => i.id !== itemToDelete));
+      toast.success("아이템이 삭제되었습니다.");
     } catch (error) {
       console.error("옷장 아이템을 삭제하는 중 오류:", error);
       toast.error("아이템을 삭제하는 중 오류가 발생했습니다.");
+    } finally {
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -405,6 +419,24 @@ const App = () => {
           onUpdate={handleUpdateItem}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => {
+          setIsConfirmOpen(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="아이템 삭제"
+        message={
+          <>
+            정말로 이 아이템을 삭제하시겠습니까?
+            <br />이 작업은 되돌릴 수 없습니다.
+          </>
+        }
+        confirmText="삭제"
+        cancelText="취소"
+      />
     </div>
   );
 };
