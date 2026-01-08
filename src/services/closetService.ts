@@ -18,6 +18,7 @@ interface SupabaseClosetItem {
   purchase_date: string | null;
   worn_count: number;
   last_worn_date: string | null;
+  is_dirty: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -36,6 +37,7 @@ function transformSupabaseItem(item: SupabaseClosetItem): ClosetItem {
     purchaseDate: item.purchase_date || undefined,
     wornCount: item.worn_count || 0,
     lastWornDate: item.last_worn_date || undefined,
+    isDirty: item.is_dirty || false,
   };
 }
 
@@ -79,6 +81,7 @@ export async function addClosetItem(
     purchase_date: item.purchaseDate || null,
     worn_count: 0,
     last_worn_date: null,
+    is_dirty: item.isDirty || false,
   } as ClosetItemInsert;
 
   const { data, error } = await supabase
@@ -109,6 +112,7 @@ export async function updateClosetItem(
     purchase_date?: string | null;
     worn_count?: number;
     last_worn_date?: string | null;
+    is_dirty?: boolean;
   },
 ): Promise<ClosetItem> {
   const updateData: any = {};
@@ -128,6 +132,8 @@ export async function updateClosetItem(
     updateData.worn_count = updates.worn_count;
   if (updates.last_worn_date !== undefined)
     updateData.last_worn_date = updates.last_worn_date;
+  if (updates.is_dirty !== undefined)
+    updateData.is_dirty = updates.is_dirty;
 
   const { data, error } = await (supabase.from("closet_items") as any)
     .update(updateData)

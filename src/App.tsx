@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { ClosetItem, Category, Season } from "./types";
+import React, { useState, useEffect } from "react";
+import { ClosetItem, Category, Season, Outfit, WishlistItem } from "./types";
 import { CATEGORIES, SEASON_OPTIONS } from "./constants";
 import Sidebar from "./components/Sidebar";
 import ClosetGrid from "./components/ClosetGrid";
@@ -15,13 +15,18 @@ import {
   updateClosetItem,
   deleteClosetItem,
 } from "./services/closetService";
+import LaundryTracker from "./components/LaundryTracker";
+import OutfitManager from "./components/OutfitManager";
+import WishlistManager from "./components/WishlistManager";
 
 const App = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<ClosetItem[]>([]);
+  const [outfits, setOutfits] = useState<Outfit[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [activeTab, setActiveTab] = useState<
-    "closet" | "dashboard" | "ai-rec" | "ai-tips"
+    "closet" | "outfits" | "laundry" | "wishlist" | "dashboard"
   >("closet");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ClosetItem | null>(null);
@@ -57,7 +62,6 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Supabase에서 데이터 로드
   const loadItems = async () => {
     try {
       setItemsLoading(true);
@@ -115,6 +119,7 @@ const App = () => {
       if (updates.price !== undefined) updateData.price = updates.price || null;
       if (updates.purchaseDate !== undefined)
         updateData.purchase_date = updates.purchaseDate || null;
+      if (updates.isDirty !== undefined) updateData.is_dirty = updates.isDirty;
 
       const updatedItem = await updateClosetItem(id, updateData);
       setItems((prev) =>
@@ -173,6 +178,54 @@ const App = () => {
       console.error("입은 횟수를 업데이트하는 중 오류:", error);
       alert("입은 횟수를 업데이트하는 중 오류가 발생했습니다.");
     }
+  };
+
+  const handleToggleLaundry = async (id: string) => {
+    try {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      const updatedIsDirty = !item.isDirty;
+      await updateClosetItem(id, {
+        is_dirty: updatedIsDirty,
+      });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                isDirty: updatedIsDirty,
+              }
+            : item,
+        ),
+      );
+    } catch (error) {
+      console.error("세탁 상태를 업데이트하는 중 오류:", error);
+      alert("세탁 상태를 업데이트하는 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleSaveOutfit = (o: Outfit) => {
+    setOutfits((prev) => [o, ...prev]);
+  };
+
+  const handleUpdateOutfit = (updated: Outfit) => {
+    setOutfits((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+  };
+
+  const handleAddWishlist = (w: WishlistItem) => {
+    setWishlist((prev) => [w, ...prev]);
+  };
+
+  const handleUpdateWishlist = (updated: WishlistItem) => {
+    setWishlist((prev) => prev.map((w) => (w.id === updated.id ? updated : w)));
+  };
+
+  const toggleLaundry = (id: string) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, isDirty: !item.isDirty } : item,
+      ),
+    );
   };
 
   const filteredItems = items.filter((item) => {
@@ -256,7 +309,7 @@ const App = () => {
 
         <div className="flex-1 overflow-y-auto p-3 pb-20 md:p-8 md:pb-8">
           {activeTab === "closet" && (
-            <div className="space-y-4 md:space-y-6">
+            <div>
               {itemsLoading ? (
                 <div className="flex h-64 flex-col items-center justify-center space-y-2 text-gray-400">
                   <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
@@ -269,24 +322,24 @@ const App = () => {
                     <input
                       type="text"
                       placeholder="검색..."
-                      className="w-full rounded-full border-none bg-gray-100 py-2 pl-10 pr-4 text-sm transition-all focus:ring-2 focus:ring-blue-500"
+                      className="mb-3 w-full rounded-full border-none bg-gray-100 py-2 pl-10 pr-4 text-sm transition-all focus:ring-2 focus:ring-blue-500"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
 
-                  <div className="flex flex-row gap-2 pb-1">
+                  <div className="flex flex-row gap-2 pb-3">
                     <CustomSelect
                       options={categoryOptions}
                       value={filterCategory}
                       onChange={(val) => setFilterCategory(val as any)}
-                      className="min-w-0 flex-1"
+                      className="mt-0 min-w-0 flex-1"
                     />
                     <CustomSelect
                       options={seasonOptions}
                       value={filterSeason}
                       onChange={(val) => setFilterSeason(val as any)}
-                      className="min-w-0 flex-1"
+                      className="mt-0 min-w-0 flex-1"
                     />
                   </div>
 
@@ -295,6 +348,7 @@ const App = () => {
                       items={filteredItems}
                       onDelete={handleDeleteItem}
                       onWear={handleWornToday}
+                      onToggleLaundry={handleToggleLaundry}
                       onEdit={handleEditItem}
                     />
                   ) : (
@@ -310,7 +364,33 @@ const App = () => {
             </div>
           )}
 
-          {activeTab === "dashboard" && <Dashboard items={items} />}
+          {activeTab === "outfits" && (
+            <OutfitManager
+              items={items}
+              outfits={outfits}
+              onSave={handleSaveOutfit}
+              onUpdate={handleUpdateOutfit}
+              onDelete={(id) =>
+                setOutfits((prev) => prev.filter((o) => o.id !== id))
+              }
+            />
+          )}
+          {activeTab === "laundry" && (
+            <LaundryTracker items={items} onToggleLaundry={toggleLaundry} />
+          )}
+          {activeTab === "wishlist" && (
+            <WishlistManager
+              list={wishlist}
+              onAdd={handleAddWishlist}
+              onUpdate={handleUpdateWishlist}
+              onDelete={(id) =>
+                setWishlist((prev) => prev.filter((w) => w.id !== id))
+              }
+            />
+          )}
+          {activeTab === "dashboard" && (
+            <Dashboard items={items} outfits={outfits} wishlist={wishlist} />
+          )}
         </div>
       </main>
 

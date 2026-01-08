@@ -76,16 +76,21 @@ export interface ClosetItem {
   purchaseDate?: string;
   wornCount: number;
   lastWornDate?: string;
+  isDirty: boolean;
 }
 
-export interface Recommendation {
+export interface Outfit {
   id: string;
-  title: string;
-  items: string[];
-  description: string;
+  name: string;
+  itemIds: string[];
+  createdAt: string;
 }
 
-export interface ClosetTip {
-  title: string;
-  content: string;
+export interface WishlistItem {
+  id: string;
+  name: string;
+  category: Category;
+  price?: number;
+  link?: string;
+  memo?: string;
 }

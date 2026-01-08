@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ClosetItem, Category, SubCategory, Season } from "../types";
 import { CATEGORIES, CATEGORY_MAP, SEASON_OPTIONS, COLORS } from "../constants";
+import CustomSelect from "./CustomSelect";
 import { X, Camera } from "lucide-react";
 import { uploadImage } from "../services/closetService";
 
@@ -29,8 +30,22 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   const [price, setPrice] = useState("");
   const [date, setDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPriceFocused, setIsPriceFocused] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 가격 포맷팅 함수 (천 단위 구분자 추가)
+  const formatPrice = (value: string): string => {
+    if (!value) return "";
+    const numericValue = value.replace(/,/g, "");
+    if (numericValue === "" || isNaN(parseInt(numericValue))) return "";
+    return parseInt(numericValue).toLocaleString("ko-KR");
+  };
+
+  // 가격 포맷팅 제거 함수 (숫자만 추출)
+  const unformatPrice = (value: string): string => {
+    return value.replace(/,/g, "");
+  };
 
   // 수정 모드일 때 기존 데이터로 폼 초기화
   useEffect(() => {
@@ -44,6 +59,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
       setLink(editingItem.purchaseLink || "");
       setPrice(editingItem.price?.toString() || "");
       setDate(editingItem.purchaseDate || "");
+      setIsPriceFocused(false);
     } else {
       // 추가 모드일 때 초기화
       setPhoto("");
@@ -55,6 +71,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
       setLink("");
       setPrice("");
       setDate("");
+      setIsPriceFocused(false);
     }
   }, [editingItem]);
 
@@ -115,6 +132,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
           price: price ? parseInt(price) : undefined,
           purchaseDate: date,
           wornCount: 0,
+          isDirty: false,
         };
         await onAdd(newItem);
       }
@@ -134,6 +152,12 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   };
 
   if (!isOpen) return null;
+
+  const categoryOptions = CATEGORIES.map((c) => ({ label: c, value: c }));
+  const subCategoryOptions = (CATEGORY_MAP[category] || []).map((sc) => ({
+    label: sc,
+    value: sc,
+  }));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm md:items-center md:p-4">
@@ -197,40 +221,27 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                   <label className="mb-2 block text-xs font-bold uppercase text-gray-500">
                     종류
                   </label>
-                  <select
-                    className="w-full rounded-xl border-none bg-gray-50 p-3 text-sm focus:ring-2 focus:ring-blue-500"
+                  <CustomSelect
+                    options={categoryOptions}
                     value={category}
+                    placeholder="선택 안함"
                     onChange={(e) => {
-                      setCategory(e.target.value as Category);
+                      setCategory(e as Category);
                       setSubCategory("");
                     }}
-                  >
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
                 <div>
                   <label className="mb-2 block text-xs font-bold uppercase text-gray-500">
                     상세 분류
                   </label>
-                  <select
-                    className="w-full rounded-xl border-none bg-gray-50 p-3 text-sm focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  <CustomSelect
+                    options={subCategoryOptions}
                     value={subCategory}
-                    onChange={(e) =>
-                      setSubCategory(e.target.value as SubCategory)
-                    }
-                    disabled={CATEGORY_MAP[category].length === 0}
-                  >
-                    <option value="">선택 안함</option>
-                    {CATEGORY_MAP[category].map((sc) => (
-                      <option key={sc} value={sc}>
-                        {sc}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setSubCategory(val as SubCategory)}
+                    placeholder="선택 안함"
+                    disabled={subCategoryOptions.length === 0}
+                  />
                 </div>
               </div>
 
@@ -247,7 +258,9 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                       className={`h-8 w-8 rounded-full border-2 transition-all ${
                         color === c
                           ? "scale-110 border-blue-600"
-                          : "border-transparent"
+                          : c === "#FFFFFF"
+                            ? "border-gray-300"
+                            : "border-transparent"
                       }`}
                       style={{ backgroundColor: c }}
                     />
@@ -291,11 +304,23 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                   />
                   <div className="flex gap-2">
                     <input
-                      type="number"
+                      type="text"
                       placeholder="가격"
                       className="w-1/2 rounded-xl border-none bg-gray-50 p-3 text-sm focus:ring-2 focus:ring-blue-500"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
+                      value={isPriceFocused ? price : formatPrice(price)}
+                      onChange={(e) => {
+                        const value = unformatPrice(e.target.value);
+                        if (value === "" || /^\d+$/.test(value)) {
+                          setPrice(value);
+                        }
+                      }}
+                      onFocus={() => {
+                        setIsPriceFocused(true);
+                        setPrice(unformatPrice(price));
+                      }}
+                      onBlur={() => {
+                        setIsPriceFocused(false);
+                      }}
                     />
                     <input
                       type="date"

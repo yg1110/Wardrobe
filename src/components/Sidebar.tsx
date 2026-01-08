@@ -1,5 +1,11 @@
 import React from "react";
-import { Shirt, LayoutDashboard } from "lucide-react";
+import {
+  Shirt,
+  LayoutDashboard,
+  Layers,
+  ShoppingBag,
+  Waves,
+} from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -9,6 +15,9 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const navItems = [
     { id: "closet", label: "내 옷장", icon: Shirt },
+    { id: "outfits", label: "코디 세트", icon: Layers },
+    { id: "laundry", label: "세탁 바구니", icon: Waves },
+    { id: "wishlist", label: "위시리스트", icon: ShoppingBag },
     { id: "dashboard", label: "통계 분석", icon: LayoutDashboard },
   ];
 
