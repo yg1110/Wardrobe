@@ -14,8 +14,8 @@ import {
 
 interface WishlistManagerProps {
   list: WishlistItem[];
-  onAdd: (item: WishlistItem) => void;
-  onUpdate: (item: WishlistItem) => void;
+  onAdd: (item: Omit<WishlistItem, "id">) => void;
+  onUpdate: (id: string, updates: Partial<WishlistItem>) => void;
   onDelete: (id: string) => void;
 }
 
@@ -66,20 +66,18 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
     if (!name) return;
 
     if (editingId) {
-      onUpdate({
-        id: editingId,
+      onUpdate(editingId, {
         name,
         category,
         price: price ? parseInt(price) : undefined,
-        link,
+        link: link || undefined,
       });
     } else {
       onAdd({
-        id: Date.now().toString(),
         name,
         category,
         price: price ? parseInt(price) : undefined,
-        link,
+        link: link || undefined,
       });
     }
 

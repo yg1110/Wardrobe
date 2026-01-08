@@ -30,7 +30,7 @@ const LaundryTracker: React.FC<LaundryTrackerProps> = ({
           {dirtyItems.map((item) => (
             <div
               key={item.id}
-              className="group relative overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm"
+              className="group relative overflow-hidden rounded-2xl border-2 border-amber-400 bg-white shadow-sm"
             >
               <img
                 src={item.photo}

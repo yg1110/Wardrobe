@@ -23,7 +23,7 @@ const ClosetGrid: React.FC<ClosetGridProps> = ({
         <div
           onClick={() => onEdit?.(item)}
           key={item.id}
-          className={`group rounded-2xl border bg-white ${item.isDirty ? "border-amber-200 ring-2 ring-amber-50" : "border-gray-100"} relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl`}
+          className={`group rounded-2xl border bg-white ${item.isDirty ? "border-2 border-amber-400" : "border-gray-100"} relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl`}
         >
           <div className="relative aspect-[3/4] overflow-hidden bg-gray-200">
             <img

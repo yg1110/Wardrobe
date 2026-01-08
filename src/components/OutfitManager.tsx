@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ClosetItem, Outfit } from "../types";
-import { Layers, Plus, X, Trash2, Pencil } from "lucide-react";
+import { Layers, Plus, X, Trash2, Pencil, Waves } from "lucide-react";
 
 interface OutfitManagerProps {
   items: ClosetItem[];
   outfits: Outfit[];
-  onSave: (outfit: Outfit) => void;
-  onUpdate: (outfit: Outfit) => void;
+  onSave: (outfit: Omit<Outfit, "id" | "createdAt">) => void;
+  onUpdate: (
+    id: string,
+    updates: { name?: string; itemIds?: string[] },
+  ) => void;
   onDelete: (id: string) => void;
 }
 
@@ -59,20 +62,14 @@ const OutfitManager: React.FC<OutfitManagerProps> = ({
     if (!newOutfitName || selectedItemIds.length === 0) return;
 
     if (editingId) {
-      onUpdate({
-        id: editingId,
+      onUpdate(editingId, {
         name: newOutfitName,
         itemIds: selectedItemIds,
-        createdAt:
-          outfits.find((o) => o.id === editingId)?.createdAt ||
-          new Date().toISOString(),
       });
     } else {
       onSave({
-        id: Date.now().toString(),
         name: newOutfitName,
         itemIds: selectedItemIds,
-        createdAt: new Date().toISOString(),
       });
     }
 
@@ -219,13 +216,20 @@ const OutfitManager: React.FC<OutfitManagerProps> = ({
                 return (
                   <div
                     key={itemId}
-                    className={`h-18 w-14 overflow-hidden rounded-lg border border-gray-50 bg-gray-100 shadow-sm transition-transform hover:scale-110 ${item.isDirty ? "ring-2 ring-amber-500" : ""}`}
+                    className={`h-18 w-14 overflow-hidden rounded-lg border border-gray-50 bg-gray-100 shadow-sm transition-transform hover:scale-110 ${item.isDirty ? "border-2 border-amber-400" : ""}`}
                   >
-                    <img
-                      src={item.photo}
-                      className="h-full w-full object-cover"
-                      alt="outfit item"
-                    />
+                    <div className="relative">
+                      <img
+                        src={item.photo}
+                        className="h-full w-full object-cover"
+                        alt="outfit item"
+                      />
+                      {item.isDirty && (
+                        <div className="absolute left-2 top-2 flex items-center rounded-lg bg-amber-500 p-1 text-[10px] font-bold text-white shadow-md">
+                          <Waves className="h-2 w-2" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}

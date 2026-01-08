@@ -15,6 +15,18 @@ import {
   updateClosetItem,
   deleteClosetItem,
 } from "./services/closetService";
+import {
+  fetchOutfits,
+  addOutfit,
+  updateOutfit,
+  deleteOutfit,
+} from "./services/outfitService";
+import {
+  fetchWishlistItems,
+  addWishlistItem,
+  updateWishlistItem,
+  deleteWishlistItem,
+} from "./services/wishlistService";
 import LaundryTracker from "./components/LaundryTracker";
 import OutfitManager from "./components/OutfitManager";
 import WishlistManager from "./components/WishlistManager";
@@ -38,6 +50,8 @@ const App = () => {
   const [itemsLoading, setItemsLoading] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [outfitsLoading, setOutfitsLoading] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   // 인증 상태 확인
   useEffect(() => {
@@ -78,9 +92,35 @@ const App = () => {
     }
   };
 
+  const loadOutfits = async () => {
+    try {
+      setOutfitsLoading(true);
+      const data = await fetchOutfits();
+      setOutfits(data);
+    } catch (error) {
+      console.error("코디 세트를 불러오는 중 오류:", error);
+    } finally {
+      setOutfitsLoading(false);
+    }
+  };
+
+  const loadWishlist = async () => {
+    try {
+      setWishlistLoading(true);
+      const data = await fetchWishlistItems();
+      setWishlist(data);
+    } catch (error) {
+      console.error("위시리스트를 불러오는 중 오류:", error);
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       loadItems();
+      loadOutfits();
+      loadWishlist();
     }
   }, [user]);
 
@@ -219,28 +259,113 @@ const App = () => {
     }
   };
 
-  const handleSaveOutfit = (o: Outfit) => {
-    setOutfits((prev) => [o, ...prev]);
+  const handleSaveOutfit = async (o: Omit<Outfit, "id" | "createdAt">) => {
+    try {
+      const savedOutfit = await addOutfit(o);
+      setOutfits((prev) => [savedOutfit, ...prev]);
+      toast.success("코디 세트가 저장되었습니다.");
+    } catch (error) {
+      console.error("코디 세트를 저장하는 중 오류:", error);
+      toast.error("코디 세트를 저장하는 중 오류가 발생했습니다.");
+    }
   };
 
-  const handleUpdateOutfit = (updated: Outfit) => {
-    setOutfits((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+  const handleUpdateOutfit = async (
+    id: string,
+    updates: { name?: string; itemIds?: string[] },
+  ) => {
+    try {
+      const updatedOutfit = await updateOutfit(id, {
+        name: updates.name,
+        item_ids: updates.itemIds,
+      });
+      setOutfits((prev) =>
+        prev.map((o) => (o.id === updatedOutfit.id ? updatedOutfit : o)),
+      );
+      toast.success("코디 세트가 수정되었습니다.");
+    } catch (error) {
+      console.error("코디 세트를 수정하는 중 오류:", error);
+      toast.error("코디 세트를 수정하는 중 오류가 발생했습니다.");
+    }
   };
 
-  const handleAddWishlist = (w: WishlistItem) => {
-    setWishlist((prev) => [w, ...prev]);
+  const handleDeleteOutfit = async (id: string) => {
+    try {
+      await deleteOutfit(id);
+      setOutfits((prev) => prev.filter((o) => o.id !== id));
+      toast.success("코디 세트가 삭제되었습니다.");
+    } catch (error) {
+      console.error("코디 세트를 삭제하는 중 오류:", error);
+      toast.error("코디 세트를 삭제하는 중 오류가 발생했습니다.");
+    }
   };
 
-  const handleUpdateWishlist = (updated: WishlistItem) => {
-    setWishlist((prev) => prev.map((w) => (w.id === updated.id ? updated : w)));
+  const handleAddWishlist = async (w: Omit<WishlistItem, "id">) => {
+    try {
+      const savedItem = await addWishlistItem(w);
+      setWishlist((prev) => [savedItem, ...prev]);
+      toast.success("위시리스트 아이템이 추가되었습니다.");
+    } catch (error) {
+      console.error("위시리스트 아이템을 추가하는 중 오류:", error);
+      toast.error("위시리스트 아이템을 추가하는 중 오류가 발생했습니다.");
+    }
   };
 
-  const toggleLaundry = (id: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, isDirty: !item.isDirty } : item,
-      ),
-    );
+  const handleUpdateWishlist = async (
+    id: string,
+    updates: Partial<WishlistItem>,
+  ) => {
+    try {
+      const updatedItem = await updateWishlistItem(id, {
+        name: updates.name,
+        category: updates.category,
+        price: updates.price,
+        link: updates.link,
+        memo: updates.memo,
+      });
+      setWishlist((prev) =>
+        prev.map((w) => (w.id === updatedItem.id ? updatedItem : w)),
+      );
+      toast.success("위시리스트 아이템이 수정되었습니다.");
+    } catch (error) {
+      console.error("위시리스트 아이템을 수정하는 중 오류:", error);
+      toast.error("위시리스트 아이템을 수정하는 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleDeleteWishlist = async (id: string) => {
+    try {
+      await deleteWishlistItem(id);
+      setWishlist((prev) => prev.filter((w) => w.id !== id));
+      toast.success("위시리스트 아이템이 삭제되었습니다.");
+    } catch (error) {
+      console.error("위시리스트 아이템을 삭제하는 중 오류:", error);
+      toast.error("위시리스트 아이템을 삭제하는 중 오류가 발생했습니다.");
+    }
+  };
+
+  const toggleLaundry = async (id: string) => {
+    try {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      const updatedIsDirty = !item.isDirty;
+      await updateClosetItem(id, {
+        is_dirty: updatedIsDirty,
+      });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                isDirty: updatedIsDirty,
+              }
+            : item,
+        ),
+      );
+    } catch (error) {
+      console.error("세탁 상태를 업데이트하는 중 오류:", error);
+      toast.error("세탁 상태를 업데이트하는 중 오류가 발생했습니다.");
+    }
   };
 
   const filteredItems = items.filter((item) => {
@@ -386,9 +511,7 @@ const App = () => {
               outfits={outfits}
               onSave={handleSaveOutfit}
               onUpdate={handleUpdateOutfit}
-              onDelete={(id) =>
-                setOutfits((prev) => prev.filter((o) => o.id !== id))
-              }
+              onDelete={handleDeleteOutfit}
             />
           )}
           {activeTab === "laundry" && (
@@ -399,9 +522,7 @@ const App = () => {
               list={wishlist}
               onAdd={handleAddWishlist}
               onUpdate={handleUpdateWishlist}
-              onDelete={(id) =>
-                setWishlist((prev) => prev.filter((w) => w.id !== id))
-              }
+              onDelete={handleDeleteWishlist}
             />
           )}
           {activeTab === "dashboard" && (
