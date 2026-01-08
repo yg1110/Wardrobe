@@ -37,7 +37,8 @@ const ClosetGrid: React.FC<ClosetGridProps> = ({
                 세탁필요
               </div>
             )}
-            <div className="absolute inset-0 flex items-center justify-center space-x-3 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+            {/* PC용 호버 버튼 (md 이상에서만 표시) */}
+            <div className="absolute inset-0 hidden items-center justify-center space-x-3 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 md:flex">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -117,6 +118,36 @@ const ClosetGrid: React.FC<ClosetGridProps> = ({
                 </span>
               </div>
             )}
+            {/* 모바일용 버튼 (md 미만에서만 표시) */}
+            <div className="mt-3 flex items-center justify-center gap-2 border-t border-gray-100 pt-3 md:hidden">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onWear(item.id);
+                }}
+                className="flex-1 rounded-lg bg-green-500 px-3 py-2 text-xs font-medium text-white shadow-sm transition-transform active:scale-95"
+              >
+                <CheckCircle className="mx-auto h-4 w-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleLaundry(item.id);
+                }}
+                className={`${item.isDirty ? "bg-blue-500" : "bg-amber-500"} flex-1 rounded-lg px-3 py-2 text-xs font-medium text-white shadow-sm transition-transform active:scale-95`}
+              >
+                <Waves className="mx-auto h-4 w-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(item.id);
+                }}
+                className="flex-1 rounded-lg bg-red-500 px-3 py-2 text-xs font-medium text-white shadow-sm transition-transform active:scale-95"
+              >
+                <Trash2 className="mx-auto h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       ))}
