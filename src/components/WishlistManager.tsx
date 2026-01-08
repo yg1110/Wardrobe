@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { WishlistItem, Category } from "../types";
 import { CATEGORIES } from "../constants";
 import CustomSelect from "./CustomSelect";
@@ -38,7 +39,6 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
     setPrice(item.price?.toString() || "");
     setLink(item.link || "");
     setIsAdding(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCancel = () => {
@@ -49,6 +49,18 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
     setPrice("");
     setLink("");
   };
+
+  // 모달이 열릴 때 body 스크롤 막기
+  useEffect(() => {
+    if (isAdding) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isAdding]);
 
   const handleSave = () => {
     if (!name) return;
@@ -91,83 +103,92 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
         )}
       </div>
 
-      {isAdding && (
-        <div className="space-y-6 rounded-3xl border-2 border-pink-100 bg-white p-8 shadow-xl">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-pink-600">
-              {editingId ? "아이템 수정" : "새로운 아이템 추가"}
-            </h3>
-            <button
-              onClick={handleCancel}
-              className="rounded-full p-2 text-gray-400 transition-all hover:bg-gray-50 hover:text-gray-600"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                상품명
-              </label>
-              <input
-                type="text"
-                placeholder="예: 블랙 트렌치코트"
-                className="w-full rounded-xl border-none bg-gray-50 p-4 text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-pink-400"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+      {isAdding &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm md:items-center md:p-4">
+            <div className="animate-in fade-in zoom-in flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl duration-200 md:max-h-[90vh] md:rounded-3xl">
+              <header className="flex items-center justify-between border-b p-4 md:p-6">
+                <h2 className="text-lg font-bold md:text-xl">
+                  {editingId ? "아이템 수정" : "새로운 아이템 추가"}
+                </h2>
+                <button
+                  onClick={handleCancel}
+                  className="rounded-full p-2 transition-colors hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5 md:h-6 md:w-6" />
+                </button>
+              </header>
+
+              <div className="flex-1 space-y-6 overflow-y-auto p-4 md:space-y-8 md:p-8">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                      상품명
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="예: 블랙 트렌치코트"
+                      className="w-full rounded-xl border-none bg-gray-50 p-4 text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-pink-400"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                      카테고리
+                    </label>
+                    <CustomSelect
+                      options={CATEGORIES.map((c) => ({ label: c, value: c }))}
+                      value={category}
+                      onChange={(v) => setCategory(v as Category)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                      예상 가격 (선택)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="숫자만 입력"
+                      className="w-full rounded-xl border-none bg-gray-50 p-4 text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-pink-400"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                      상품 링크 (선택)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://..."
+                      className="w-full rounded-xl border-none bg-gray-50 p-4 text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-pink-400"
+                      value={link}
+                      onChange={(e) => setLink(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <footer className="flex gap-3 border-t bg-gray-50 p-4 md:gap-4 md:p-6">
+                <button
+                  onClick={handleCancel}
+                  className="flex-1 rounded-2xl py-3 text-sm font-bold text-gray-600 transition-colors hover:bg-gray-100 md:py-4 md:text-base"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="flex-[2] rounded-2xl bg-pink-500 py-3 text-sm font-bold text-white shadow-xl transition-all hover:bg-pink-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-pink-400 md:py-4 md:text-base"
+                  disabled={!name}
+                >
+                  {editingId ? "수정 완료" : "위시리스트 추가"}
+                </button>
+              </footer>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                카테고리
-              </label>
-              <CustomSelect
-                options={CATEGORIES.map((c) => ({ label: c, value: c }))}
-                value={category}
-                onChange={(v) => setCategory(v as Category)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                예상 가격 (선택)
-              </label>
-              <input
-                type="number"
-                placeholder="숫자만 입력"
-                className="w-full rounded-xl border-none bg-gray-50 p-4 text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-pink-400"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                상품 링크 (선택)
-              </label>
-              <input
-                type="text"
-                placeholder="https://..."
-                className="w-full rounded-xl border-none bg-gray-50 p-4 text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-pink-400"
-                value={link}
-                onChange={(e) => setLink(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={handleCancel}
-              className="flex-1 rounded-2xl bg-gray-100 py-4 font-bold text-gray-600 transition-colors hover:bg-gray-200"
-            >
-              취소
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex-[2] rounded-2xl bg-pink-500 py-4 font-bold text-white shadow-lg shadow-pink-200 transition-all hover:bg-pink-600 active:scale-95"
-            >
-              {editingId ? "수정 완료" : "위시리스트 추가"}
-            </button>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
         <div className="overflow-x-auto">

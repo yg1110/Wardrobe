@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ClosetItem, Outfit } from "../types";
 import { Layers, Plus, X, Trash2, Pencil } from "lucide-react";
 
@@ -33,7 +34,6 @@ const OutfitManager: React.FC<OutfitManagerProps> = ({
     setNewOutfitName(outfit.name);
     setSelectedItemIds([...outfit.itemIds]);
     setIsCreating(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCancel = () => {
@@ -42,6 +42,18 @@ const OutfitManager: React.FC<OutfitManagerProps> = ({
     setNewOutfitName("");
     setSelectedItemIds([]);
   };
+
+  // 모달이 열릴 때 body 스크롤 막기
+  useEffect(() => {
+    if (isCreating) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isCreating]);
 
   const handleSave = () => {
     if (!newOutfitName || selectedItemIds.length === 0) return;
@@ -84,80 +96,88 @@ const OutfitManager: React.FC<OutfitManagerProps> = ({
         )}
       </div>
 
-      {isCreating && (
-        <div className="animate-in slide-in-from-top-4 rounded-3xl border-2 border-blue-100 bg-white p-6 shadow-xl">
-          <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-blue-600">
-              {editingId ? "코디 수정하기" : "새로운 코디 만들기"}
-            </h3>
-            <button
-              onClick={handleCancel}
-              className="p-2 text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          </div>
+      {isCreating &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm md:items-center md:p-4">
+            <div className="animate-in fade-in zoom-in flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl duration-200 md:max-h-[90vh] md:rounded-3xl">
+              <header className="flex items-center justify-between border-b p-4 md:p-6">
+                <h2 className="text-lg font-bold md:text-xl">
+                  {editingId ? "코디 수정하기" : "새로운 코디 만들기"}
+                </h2>
+                <button
+                  onClick={handleCancel}
+                  className="rounded-full p-2 transition-colors hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5 md:h-6 md:w-6" />
+                </button>
+              </header>
 
-          <div className="mb-6">
-            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-gray-400">
-              코디 이름
-            </label>
-            <input
-              type="text"
-              placeholder="예: 금요일 데이트룩"
-              className="w-full border-b-2 border-gray-100 pb-1 text-xl font-bold outline-none transition-colors focus:border-blue-500"
-              value={newOutfitName}
-              onChange={(e) => setNewOutfitName(e.target.value)}
-            />
-          </div>
+              <div className="flex-1 space-y-6 overflow-y-auto p-4 md:space-y-8 md:p-8">
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-gray-400">
+                    코디 이름
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="예: 금요일 데이트룩"
+                    className="w-full border-b-2 border-gray-100 pb-1 text-xl font-bold outline-none transition-colors focus:border-blue-500"
+                    value={newOutfitName}
+                    onChange={(e) => setNewOutfitName(e.target.value)}
+                  />
+                </div>
 
-          <p className="mb-4 text-sm font-bold uppercase tracking-wider text-gray-500">
-            옷장에서 아이템 선택 ({selectedItemIds.length})
-          </p>
-          <div className="grid max-h-[400px] grid-cols-3 gap-3 overflow-y-auto rounded-2xl bg-gray-50 p-1 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
-            {items.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => toggleItemSelection(item.id)}
-                className={`relative aspect-[3/4] overflow-hidden rounded-xl border-4 transition-all ${
-                  selectedItemIds.includes(item.id)
-                    ? "scale-[0.98] border-blue-500 ring-2 ring-blue-100"
-                    : "border-transparent opacity-70 hover:opacity-100"
-                }`}
-              >
-                <img
-                  src={item.photo}
-                  className="h-full w-full object-cover"
-                  alt={item.category}
-                />
-                {selectedItemIds.includes(item.id) && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10">
-                    <div className="rounded-full bg-white p-1 shadow-lg">
-                      <Plus className="h-4 w-4 rotate-45 text-blue-600" />
-                    </div>
+                <div>
+                  <p className="mb-4 text-sm font-bold uppercase tracking-wider text-gray-500">
+                    옷장에서 아이템 선택 ({selectedItemIds.length})
+                  </p>
+                  <div className="grid max-h-[400px] grid-cols-3 gap-3 overflow-y-auto rounded-2xl bg-gray-50 p-1 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+                    {items.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => toggleItemSelection(item.id)}
+                        className={`relative aspect-[3/4] overflow-hidden rounded-xl border-4 transition-all ${
+                          selectedItemIds.includes(item.id)
+                            ? "scale-[0.98] border-blue-500 ring-2 ring-blue-100"
+                            : "border-transparent opacity-70 hover:opacity-100"
+                        }`}
+                      >
+                        <img
+                          src={item.photo}
+                          className="h-full w-full object-cover"
+                          alt={item.category}
+                        />
+                        {selectedItemIds.includes(item.id) && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10">
+                            <div className="rounded-full bg-white p-1 shadow-lg">
+                              <Plus className="h-4 w-4 rotate-45 text-blue-600" />
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    ))}
                   </div>
-                )}
-              </button>
-            ))}
-          </div>
+                </div>
+              </div>
 
-          <div className="mt-8 flex gap-3">
-            <button
-              onClick={handleCancel}
-              className="flex-1 rounded-2xl bg-gray-100 py-4 font-bold text-gray-600 transition-colors hover:bg-gray-200"
-            >
-              취소
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex-[2] rounded-2xl bg-blue-600 py-4 font-bold text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!newOutfitName || selectedItemIds.length === 0}
-            >
-              {editingId ? "수정 내용 저장" : "새 코디 저장하기"}
-            </button>
-          </div>
-        </div>
-      )}
+              <footer className="flex gap-3 border-t bg-gray-50 p-4 md:gap-4 md:p-6">
+                <button
+                  onClick={handleCancel}
+                  className="flex-1 rounded-2xl py-3 text-sm font-bold text-gray-600 transition-colors hover:bg-gray-100 md:py-4 md:text-base"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="flex-[2] rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-xl transition-all hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-blue-400 md:py-4 md:text-base"
+                  disabled={!newOutfitName || selectedItemIds.length === 0}
+                >
+                  {editingId ? "수정 완료" : "새 코디 저장하기"}
+                </button>
+              </footer>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {outfits.map((outfit) => (
